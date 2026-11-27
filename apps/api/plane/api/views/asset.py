@@ -18,6 +18,7 @@ from drf_spectacular.utils import OpenApiExample, OpenApiRequest
 from plane.bgtasks.storage_metadata_task import get_asset_object_metadata
 from plane.settings.storage import S3Storage
 from plane.utils.path_validator import sanitize_filename
+from plane.utils.attachment_mime import resolve_attachment_mime_type
 from plane.db.models import FileAsset, Project, ProjectMember, User, Workspace
 from plane.app.permissions import WorkspaceUserPermission
 from plane.api.views.base import BaseAPIView
@@ -536,6 +537,7 @@ class GenericAssetEndpoint(BaseAPIView):
         size_limit = min(size, settings.FILE_SIZE_LIMIT)
 
         # Check if the file type is allowed
+        type = resolve_attachment_mime_type(type, name)
         if not type or type not in settings.ATTACHMENT_MIME_TYPES:
             return Response(
                 {"error": "Invalid file type.", "status": False},
